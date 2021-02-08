@@ -10,3 +10,5 @@ class ScraperItem(DjangoItem):
     # define the fields for your item here like:
     # name = scrapy.Field()
     pass
+
+a = {a: "a", b: "b", a: "a", b: "b", a: "a", b: "b", a: "a", b: "b", a: "a", b: "b", a: "a", b: "b"}
