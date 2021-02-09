@@ -6,6 +6,7 @@ Despues de clonar crea un ambiente virtual con pyenv e instala las dependencias
 $ pyenv local 3.9.0
 $ python -m venv venv --prompt tcchallenge
 $ source venv/bin/activate
+$ pip install -r requirements.txt
 ```
 
 No es necesario correr migraciones ya que los modelos se mantienen igual
