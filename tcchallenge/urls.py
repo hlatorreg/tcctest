@@ -23,5 +23,9 @@ urlpatterns = [
     path("asset/<int:pk>/", views.UpdateAssetAPIView.as_view(), name="update-asset"),
     path("scrapers/", views.ScraperAPIView.as_view(), name="scraper-list"),
     path("scraper/<int:pk>/", views.UpdateScraperAPIView.as_view(), name="update-asset"),
-    re_path("assetdata/(?P<asset_name>.+)/$", views.AssetDataByAssetAPIView.as_view()),
+    re_path(
+        "assetdata/(?P<asset_name>.+)/$",
+        views.AssetDataByAssetAPIView.as_view(),
+        name="asset-data-list",
+    ),
 ]

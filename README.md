@@ -32,3 +32,10 @@ $ python manage.py crawl -scraper <SCRAPER_ID>
 ```
 
 Un error se desplegará si el scraper no está activo o el ID no existe o es distinto a un entero positivo.
+
+
+Para correr pruebas unitarias
+
+```shell
+$ python manage.py test
+```

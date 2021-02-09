@@ -11,6 +11,8 @@ class ScraperAPITest(APITestCase):
     def setUpTestData(cls):
         cls.assets = [Asset.objects.create() for _ in range(3)]
         cls.asset = cls.assets[0]
+        cls.asset.name = "TEST"
+        cls.asset.save()
 
         cls.assetsdata = [
             AssetData.objects.create(
@@ -36,9 +38,11 @@ class ScraperAPITest(APITestCase):
             self.assertIn(AssetSerializer(instance=asset).data, response.data)
 
     def test_list_assets_data(self):
-        response = self.client.get(reverse("asset-data-list"))
+        response = self.client.get(reverse("asset-data-list", args=["TEST"]))
         self.assertEquals(status.HTTP_200_OK, response.status_code)
-        self.assertEquals(len(self.assets), len(response.data))
+        self.assertEquals(len(self.assetsdata), len(response.data["values"]))
 
         for assetdata in self.assetsdata:
-            self.assertIn(AssetDataSerializer(instance=assetdata).data, response.data)
+            self.assertIn(
+                AssetDataSerializer(instance=assetdata).data, response.data["values"]
+            )
