@@ -1,29 +1,32 @@
-# README #
+## Instalación
 
-This README would normally document whatever steps are necessary to get your application up and running.
+Despues de clonar crea un ambiente virtual con pyenv e instala las dependencias
 
-### What is this repository for? ###
+```shell
+$ pyenv local 3.9.0
+$ python -m venv venv --prompt tcchallenge
+$ source venv/bin/activate
+```
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+No es necesario correr migraciones ya que los modelos se mantienen igual
+En una terminal levanta el proyecto con
 
-### How do I get set up? ###
+```shell
+$ python manage.py runserver
+```
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+- http://127.0.0.1:8000/assetdata/BTC Lista los datos segun lo indicado, la ultima parte de la ruta es el nombre del asset y es variable
+- http://127.0.0.1:8000/assets/ Permite crear assets
+- http://127.0.0.1:8000/asset/<int:id> Permite updatear o destruir assets
+- http://127.0.0.1:8000/scrapers/ Permite crear scrapers
+- http://127.0.0.1:8000/scraper/<int:id> Permite updatear o destruir assets
 
-### Contribution guidelines ###
+### Para crear otro scraper se debe crear un asset primero
 
-* Writing tests
-* Code review
-* Other guidelines
+### Para correr un scraper corremos el comando
 
-### Who do I talk to? ###
+```shell
+$ python manage.py crawl -scraper <SCRAPER_ID>
+```
 
-* Repo owner or admin
-* Other community or team contact
+Un error se desplegará si el scraper no está activo o el ID no existe o es distinto a un entero positivo.

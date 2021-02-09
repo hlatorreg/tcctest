@@ -1,29 +1,34 @@
-import scrapy
+import time
+import logging
 import datetime
+from scrapy import signals, Request, Spider
 from core.models import Scraper, AssetData
 
 
-class AssetsSpider(scrapy.Spider):
+class AssetsSpider(Spider):
     name = "assets"
+    allowed_domains = ["www.coindesk.com"]
 
-    def start_requests(self):
-        scraper = Scraper.objects.all()
+    @classmethod
+    def from_crawler(cls, crawler, *args, **kwargs):
+        cls.scraper_id = kwargs.get("scraper_id")
+        spider = super(AssetsSpider, cls).from_crawler(crawler, *args, **kwargs)
+        crawler.signals.connect(spider.spider_idle, signals.spider_idle)
+        return spider
 
-        urls = [(s.url, s.asset_id) for s in scraper]
-
-        for s in scraper:
-            s.last_update = datetime.datetime.now()
-            s.save()
-
-        for u in urls:
-            yield scrapy.Request(
-                url=u[0], callback=self.parse, cb_kwargs=dict(asset_id=u[1])
-            )
+    def spider_idle(self, spider):
+        scraper = Scraper.objects.filter(pk=self.scraper_id).get()
+        time.sleep(scraper.scrape_frecuency)
+        logging.info(f"starting a crawl again! for {scraper.url}")
+        self.crawler.engine.schedule(
+            Request(
+                scraper.url, dont_filter=True, cb_kwargs=dict(asset_id=scraper.asset.pk)
+            ),
+            spider,
+        )
+        raise DontCloseSpider
 
     def parse(self, response, asset_id):
-        from scrapy.shell import inspect_response
-
-        # inspect_response(response, self)
         price = response.xpath('//div[@class="price-large"]/text()').get()
         price_low = response.xpath(
             """//*[@id="__next"]/div[2]/main/section/div[2]/div[1]/div/section/div
@@ -48,15 +53,6 @@ class AssetsSpider(scrapy.Spider):
             /div[1]/div/section/div/div[3]/div/div[3]/div[5]
             /div[2]/div/text()"""
         ).get()
-        print(
-            f"""price: {self._parse_floats(price)},
-            price_low: {self._parse_floats(price_low)},
-            price_high: {self._parse_floats(price_high)},
-            returns_24: {self._parse_floats(returns_24)},
-            returns_ytd: {self._parse_floats(returns_ytd)},
-            volatility: {self._parse_floats(volatility)},
-            asset_id: {asset_id},"""
-        )
         AssetData.objects.create(
             price=self._parse_floats(price),
             low_24h=self._parse_floats(price_low),
@@ -65,10 +61,15 @@ class AssetsSpider(scrapy.Spider):
             retunrs_ytd=self._parse_floats(returns_ytd),
             volatility=self._parse_floats(volatility),
             asset_id=asset_id,
-            data_datetime=datetime.datetime.now()
+            data_datetime=datetime.datetime.now(),
         )
 
+    def errback_httpbin(self, response):
+        print("errback")
+        print(response)
+        pass
+
     def _parse_floats(self, value):
-        removable = '$,'
-        
+        removable = "$,"
+
         return float(value.translate({ord(c): None for c in removable}))
