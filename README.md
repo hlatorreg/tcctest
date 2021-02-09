@@ -3,6 +3,7 @@
 Despues de clonar crea un ambiente virtual con pyenv e instala las dependencias
 
 ```shell
+$ cd tcctest
 $ pyenv local 3.9.0
 $ python -m venv venv --prompt tcchallenge
 $ source venv/bin/activate
