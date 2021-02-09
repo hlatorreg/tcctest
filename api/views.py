@@ -28,7 +28,6 @@ class AssetDataAPIView(generics.ListAPIView):
 
 class AssetDataByAssetAPIView(generics.GenericAPIView):
     def get(self, request, asset_name):
-        print(asset_name)
         response = {
             "asset": asset_name,
             "values": AssetData.objects.order_by("creation_date").filter(
