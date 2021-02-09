@@ -15,6 +15,11 @@ class AssetDataSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class AssetDataListSerializer(serializers.Serializer):
+    asset = serializers.CharField()
+    values = AssetDataSerializer(many=True)
+
+
 class ScraperSerializer(serializers.ModelSerializer):
     class Meta:
         model = Scraper

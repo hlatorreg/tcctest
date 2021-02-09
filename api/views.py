@@ -1,7 +1,14 @@
+import json
 from django.shortcuts import render
 from rest_framework import generics
+from rest_framework.response import Response
 from core.models import Asset, AssetData, Scraper
-from api.serializers import AssetSerializer, AssetDataSerializer, ScraperSerializer
+from api.serializers import (
+    AssetSerializer,
+    AssetDataSerializer,
+    ScraperSerializer,
+    AssetDataListSerializer,
+)
 
 
 class AssetAPIView(generics.ListCreateAPIView):
@@ -9,17 +16,26 @@ class AssetAPIView(generics.ListCreateAPIView):
     serializer_class = AssetSerializer
 
 
-class AssetDataAPIView(generics.ListCreateAPIView):
+class UpdateAssetAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Asset.objects.all()
+    serializer_class = AssetSerializer
+
+
+class AssetDataAPIView(generics.ListAPIView):
     queryset = AssetData.objects.all()
     serializer_class = AssetDataSerializer
 
 
-class AssetDataByAssetAPIView(generics.ListAPIView):
-    serializer_class = AssetDataSerializer
-
-    def get_queryset(self):
-        asset_name = self.kwargs["asset_name"]
-        return AssetData.objects.filter(asset__name=asset_name)
+class AssetDataByAssetAPIView(generics.GenericAPIView):
+    def get(self, request, asset_name):
+        print(asset_name)
+        response = {
+            "asset": asset_name,
+            "values": AssetData.objects.order_by("creation_date").filter(
+                asset__name=asset_name
+            )[:30],
+        }
+        return Response(AssetDataListSerializer(response).data)
 
 
 class ScraperAPIView(generics.ListCreateAPIView):
@@ -27,4 +43,6 @@ class ScraperAPIView(generics.ListCreateAPIView):
     serializer_class = ScraperSerializer
 
 
-# Create your views here.
+class UpdateScraperAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Scraper.objects.all()
+    serializer_class = ScraperSerializer
